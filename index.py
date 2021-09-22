@@ -97,5 +97,5 @@ async def cartefr(ctx, *arg):
 			print(id_carte)
 			await ctx.send(file=discord.File('/Images/' + id_carte + ".jpg"))
 
-bot.run("ODgyNjAxNzM0NzQzMTYyOTMw.YS9w6w.5bIqEvBFp_dtnQVzRcgns_gU9OU")
+bot.run("TOKEN")
 
