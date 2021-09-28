@@ -4,26 +4,38 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import random
+import yaml
+from PIL import Image
 
-bot = commands.Bot(command_prefix='&')
+bot = commands.Bot(command_prefix='&', case_insensitive=True)
 
 @bot.event
 async def on_ready():
 	""" check if bot is connected """
 	print("Le robot est connecté comme {0.user}".format(bot))
+	
+	embed_connexion = discord.Embed(title = "J.A.R.V.I.S", description = "Votre base de donnée Marvel Champions", color = discord.Color.blue())
+	embed_connexion.add_field(name = "Just A Rather Very Intelligent System", value = "Veuillez taper '&helpme' pour plus d'informations")
 
-@bot.command()
+	""" this message on comment for don't spam the channel with test """
+	await bot.get_guild(865522776876908546).get_channel(882711486844256256).send(embed=embed_connexion)
+
+
+@bot.command(name="helpme")
 async def helpme(ctx):
-	""" send bot command """
-	await ctx.send("Voici les commandes disponibles :\n")
-	await ctx.send(" - definition 'mot_clé'' : obtenir la définition d'un mot clé (anglais uniquement). la commande '$definition liste' affiche la liste des mots clés.\n")
-	await ctx.send(" - carte 'nom_carte' : permet d'afficher l'image des cartes recherchées. Exemple '$carte Miss Marvel'")
-	await ctx.send(" - randomizer : afficher le lien du randomizer de Halion")
-	await ctx.send(" - citation : obtenir une citation aléatoire d'une carte du jeu")
-	await ctx.send(" - deck 'id' : obtenir les cartes du deck via marvelcdb. Exemple '&deck 12921'. Ne marche qu'avec les decks public")
-	await ctx.send("MP D3spina#8685 si besoin")
+	""" send all the bot commands """
+	embed_help = discord.Embed(title = "Liste des commandes", description = "Voici la liste des commandes disponibles pour J.A.R.V.I.S", color = discord.Color.blue())
+	embed_help.add_field(name = "Bienvenue sur l'aide", value = "Toutes les commandes commencent par le préfixe '&'.", inline = False)
+	embed_help.add_field(name = "Definition", value = "Obtenir la définition d'un mot clé (anglais uniquement pour le moment). Commande : &Definition mot_clé ; La commande '&definition liste' affiche la liste des mots clés disponibles.")
+	embed_help.add_field(name = "Randomizer", value = "Afficher le lien du randomizer de notre ami Halion. Commande : &Randomizer ")
+	embed_help.add_field(name = "Citation", value = "Obtenir une citation aléatoire d'une carte du jeu. Commande : &Citation ")
+	embed_help.add_field(name = "Carte", value = "Obtenir l'image de la carte recherchée en français. La recherche peut se faire avec le nom FR ou EN. Commande : &Carte nom_de_la_carte ")
+	embed_help.add_field(name = "Deck", value = "Obtenir la liste des cartes d'un deck !public! de marvelcdb. Commande : &Deck numero_id ")
+	embed_help.add_field(name = "Contact", value = "Vous pouvez MP D3spina#8586 pour toutes questions", inline = False)
+	
+	await ctx.send(embed=embed_help)
 
-@bot.command()
+@bot.command(name="definition")
 async def definition(ctx, arg):
 	""" get key world definition """
 
@@ -31,32 +43,44 @@ async def definition(ctx, arg):
 	url_definition = "https://hallofheroeslcg.com/marvel-champions-lcg-keyword-list/"
 	page_definition = requests.get(url_definition)
 	soup_definition = BeautifulSoup(page_definition.content, 'html5lib')
-	print(arg)
 	if arg == "liste":
 		liste_definition_h3 = soup_definition.find_all('h3')
 		liste_definition = []
 		for mot in liste_definition_h3:
-			liste_definition.append(mot)
-		await ctx.send(liste_definition)
-	else:
-		""" def if the next p before h3 text """
-		definitions = soup_definition.find(text = arg).findNext("p").contents
-		await ctx.send(definitions)
+			liste_definition.append(mot.string)
 
-@bot.command()
+		del liste_definition[-1]
+
+		embed_liste=discord.Embed(name = "Liste des mots clés", color = discord.Color.blue())
+		embed_liste.add_field(name = "Liste des mots clés disponible :", value = liste_definition)
+		await ctx.send(embed=embed_liste)
+	else:
+		""" definition if the next p before h3 text """
+		definitions = soup_definition.find(text = arg).findNext("p").contents
+
+		embed_definitions = discord.Embed(name = "Définition", color = discord.Color.blue())
+		embed_definitions.add_field(name = arg, value = definitions)
+
+		await ctx.send(embed=embed_definitions)
+
+@bot.command(name="randomizer")
 async def randomizer(ctx):
 	""" get the Halion's randomizer link """
-	await ctx.send("Vous pouvez randomizer une partie ici : https://canthom.github.io/randomizer-mc/")
+	embed_randomizer = discord.Embed(name = "Randomizer de Halion", color = discord.Color.blue())
+	embed_randomizer.add_field (name = "Randomizer", value = "Vous pouvez randomizer une partie ici : https://canthom.github.io/randomizer-mc/")
 
-@bot.command()
+	await ctx.send (embed=embed_randomizer)
+
+@bot.command(name="carte")
 async def carte(ctx, *arg):
 	""" post the image of card """
 
-	""" get the *arg in string and lower ; creating list for result and resultat_Null to send message if =1 """
+	""" get the *arg in string and lower ; creating list for result and resultat_Null to send message if = 1 """
 	recherche = ' '.join(arg)
 	recherche = str(recherche.lower())
 	resultat_carte = []
 	resultat_Null = 0
+	identite = 0
 
 	""" we break the null search """
 	if len(arg) == 0:
@@ -78,18 +102,21 @@ async def carte(ctx, *arg):
 					if i['octgn_id'] not in resultat_carte:
 						resultat_carte.append(i['octgn_id'])
 						resultat_Null = 1
+				if i['type_code'] == "hero":
+					identite = 1
 
 		""" on envoie chaque image """
 		if resultat_Null == 1:
 			for id_carte in resultat_carte:
 				await ctx.send(file=discord.File('C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\' + id_carte + ".jpg"))
 				""" to send the AE form """
-				await ctx.send(file=discord.File('C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\' + id_carte + ".b.jpg"))
+				if identite == 1:
+					await ctx.send(file=discord.File('C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\' + id_carte + ".b.jpg"))
 		else:
 			""" if resultat_Null is 0, we don't have found any card """
-			await ctx.send("Pas de carte trouvé dans la base de donnée")
+			await ctx.send("Pas de carte trouvée dans la base de donnée")
 
-@bot.command()
+@bot.command(name="citation")
 async def citation(ctx):
 	""" send a flavor """
 	with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Ressource\\data.json", encoding ="utf8") as json_file:
@@ -102,9 +129,11 @@ async def citation(ctx):
 		if 'flavor' in data[place_citation]:
 			citation = data[place_citation]['flavor']
 			loop = 1
-			await ctx.send(citation)
+			embed_citations = discord.Embed(name ="Citations")
+			embed_citations.add_field(name = "Citation", value = citation)
+			await ctx.send(embed=embed_citations)
 
-@bot.command()
+@bot.command(name="deck")
 async def deck(ctx, arg):
 	""" send the deck's content """
 
@@ -112,11 +141,25 @@ async def deck(ctx, arg):
 
 	""" get the json from marvelcdb api """
 	data = requests.get("https://fr.marvelcdb.com/api/public/decklist/" + id_deck)
-	data_deck = data.json()
+	data = data.json()
 
+	thumbnail_url_code = None
 
-	""" only keep the slots deck """
-	data_deck = data_deck['slots']
+	""" only keep the slots deck, heroes name and meta """
+	data_deck = data['slots']
+
+	heros = data["investigator_name"]
+	
+	affinite = data['meta']
+	if 'leadership' in affinite:
+		affinite = 'Leadership'
+	elif 'justice' in affinite:
+		affinite = 'Justice'
+	elif 'aggression' in affinite:
+		affinite = 'Aggression'
+	else:
+		affinite = 'Protection'
+
 	nom_carte = None
 
 	""" creating the resultat variable dict """
@@ -125,6 +168,14 @@ async def deck(ctx, arg):
 	with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Ressource\\data.json", encoding ="utf8") as json_file:
 		ressource = json.load(json_file)
 
+	""" get the heros img for the embed thumbnail """
+	for i in ressource:
+		if i['name'] == heros.lower() or i['real_name'] == heros.lower():
+			if i['type_code'] == "hero":
+				thumbnail_url_code = i['code']
+				thumbnail_url_code = str(thumbnail_url_code)
+	
+
 	""" we check for every card code in deck_data, we found the name of this card with data.json and add this to the new dict deck """
 	for carte in data_deck:
 		for i in ressource:
@@ -132,8 +183,16 @@ async def deck(ctx, arg):
 				nom_carte = i['name']
 				deck[nom_carte] = data_deck[carte]
 
-	await ctx.send(deck)
+	deck_forme = yaml.dump(deck, sort_keys=False, default_flow_style=False, allow_unicode=True)
+
+	embed_deck = discord.Embed(title = "Deck", color = discord.Color.blue())
+	embed_deck.add_field(name = "Héros : ", value = heros, inline = False)
+	embed_deck.add_field(name = "Affinité :", value = affinite, inline = False)
+	embed_deck.add_field(name = "Liste des cartes : ", value = deck_forme)
+	embed_deck.set_thumbnail(url="https://fr.marvelcdb.com/bundles/cards/" + thumbnail_url_code + ".png")
+
+	await ctx.send(embed = embed_deck)
 
 """ for bot token """
-bot.run(TOKEN)
+bot.run("ODkxNzM1MzA0MzU1MDUzNTg4.YVCrOA.u4s3-9jzTV4-Phs-snyAoTPrp5g")
 
