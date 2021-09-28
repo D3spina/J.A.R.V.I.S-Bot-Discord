@@ -6,8 +6,12 @@ import json
 import random
 import yaml
 from PIL import Image
+from dotenv import load_dotenv
+import os
 
-bot = commands.Bot(command_prefix='&', case_insensitive=True)
+load_dotenv(dotenv_path="config")
+
+bot = commands.Bot(command_prefix='!', case_insensitive=True)
 
 @bot.event
 async def on_ready():
@@ -81,10 +85,17 @@ async def carte(ctx, *arg):
 	resultat_carte = []
 	resultat_Null = 0
 	identite = 0
+	img = []
+	url_image = "C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\"
+	place = 0
+	img_weight = 0
+
+	""" size in pixel of Marvel champions cards = 394 * 560 """
 
 	""" we break the null search """
 	if len(arg) == 0:
-		await ctx.send("Tu n'as pas préciser de carte!")
+		embed_no_carte = discord.Embed(name = "no result", color = discord.Color.blue())
+		embed_no_carte.add_field(name = "Erreur", value = "Tu n'as pas précisé de carte à rechercher")
 
 	else:
 
@@ -104,17 +115,46 @@ async def carte(ctx, *arg):
 						resultat_Null = 1
 				if i['type_code'] == "hero":
 					identite = 1
+					img_weight = 1
 
-		""" on envoie chaque image """
-		if resultat_Null == 1:
-			for id_carte in resultat_carte:
-				await ctx.send(file=discord.File('C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\' + id_carte + ".jpg"))
-				""" to send the AE form """
-				if identite == 1:
-					await ctx.send(file=discord.File('C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\' + id_carte + ".b.jpg"))
+		if len(resultat_carte) == 0:
+			embed_no_carte = discord.Embed(name = "no result", color = discord.Color.blue())
+			embed_no_carte.add_field(name = "Erreur", value = "Aucune carte n'a été trouvée")
+
+			await ctx.send(embed = embed_no_carte)
+
 		else:
-			""" if resultat_Null is 0, we don't have found any card """
-			await ctx.send("Pas de carte trouvée dans la base de donnée")
+
+			""" define the size of the result with the number of card found """
+			img_weight = (img_weight + len(resultat_carte)) * 394
+			img_height = 560
+
+			""" add every patch in the list img """
+			for i in resultat_carte:
+				img.append(url_image + i + ".jpg")
+				""" add the AE image in the list """
+				if identite == 1:
+					img.append(url_image + i + ".b.jpg")
+
+			""" creating the new img who will be send """
+			new_img = Image.new('RGB', (img_weight, img_height), (250,250,250))
+
+			""" we paste every image in the new_img """
+			for i in img:
+				image = Image.open(i)
+				largeur = 0+(place*394)
+				new_img.paste(image, (largeur, 0))
+				place += 1
+
+			""" saving the result in a png """
+			new_img.save("requête.png", "PNG")
+
+			""" beautiful embed """
+			embed_carte = discord.Embed(name = recherche, color = discord.Color.blue())
+			file = discord.File("requête.png", filename = "image.png")
+			embed_carte.set_image(url ="attachment://image.png")
+
+			await ctx.send(file=file,embed=embed_carte)
 
 @bot.command(name="citation")
 async def citation(ctx):
@@ -194,5 +234,5 @@ async def deck(ctx, arg):
 	await ctx.send(embed = embed_deck)
 
 """ for bot token """
-bot.run("TOKEN")
+bot.run(os.getenv("TOKEN"))
 
