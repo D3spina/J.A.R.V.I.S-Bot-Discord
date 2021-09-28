@@ -194,5 +194,5 @@ async def deck(ctx, arg):
 	await ctx.send(embed = embed_deck)
 
 """ for bot token """
-bot.run("ODkxNzM1MzA0MzU1MDUzNTg4.YVCrOA.u4s3-9jzTV4-Phs-snyAoTPrp5g")
+bot.run("TOKEN")
 
