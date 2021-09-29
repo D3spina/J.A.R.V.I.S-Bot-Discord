@@ -1,0 +1,7 @@
+requests
+bs4
+discord.py
+pip
+pyyaml
+Pillow
+python-dotenv
