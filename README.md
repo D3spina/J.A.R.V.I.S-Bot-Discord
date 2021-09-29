@@ -41,13 +41,12 @@ If you want to contribute. Use github tool
 
 ## To do list :
   - Add the english card if we don't have the french one
-  - Edit bot for another langage
-  - Get key world in FR (and another langage)
-
+  - Get key world in FR
+  - 
 ## Versions
 
 For now :
-  beta 1.0
+  beta
 
 ## Auteurs
 
@@ -55,6 +54,6 @@ Guillaume Gangloff know as D3spina
 
 ## License
 
-Not define for the moment
+License to kill ?
 
 
