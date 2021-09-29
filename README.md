@@ -42,7 +42,7 @@ If you want to contribute. Use github tool
 ## To do list :
   - Add the english card if we don't have the french one
   - Get key world in FR
-  - 
+  
 ## Versions
 
 For now :
