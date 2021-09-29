@@ -22,7 +22,7 @@ async def on_ready():
 	embed_connexion.add_field(name = "Just A Rather Very Intelligent System", value = "Veuillez taper '&helpme' pour plus d'informations")
 
 	""" this message on comment for don't spam the channel with test """
-	await bot.get_guild(865522776876908546).get_channel(882711486844256256).send(embed=embed_connexion)
+	await bot.get_guild(os.getenv(guild_id)).get_channel(os.getenv(channel_id)).send(embed=embed_connexion)
 
 
 @bot.command(name="helpme")
