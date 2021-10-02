@@ -86,7 +86,7 @@ async def carte(ctx, *arg):
 	resultat_Null = 0
 	identite = 0
 	img = []
-	url_image = "C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Images\\"
+	url_image = "C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Images\\"
 	place = 0
 	img_weight = 0
 
@@ -96,11 +96,12 @@ async def carte(ctx, *arg):
 	if len(arg) == 0:
 		embed_no_carte = discord.Embed(name = "no result", color = discord.Color.blue())
 		embed_no_carte.add_field(name = "Erreur", value = "Tu n'as pas précisé de carte à rechercher")
+		await ctx.send(embed=embed_no_carte)
 
 	else:
 
 		""" opening data.json with all references """
-		with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Ressource\\data.json", encoding ="utf8") as json_file:
+		with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:
 			data = json.load(json_file)
 
 		"""" put octgn_id in the resultat_carte list """
@@ -159,7 +160,7 @@ async def carte(ctx, *arg):
 @bot.command(name="citation")
 async def citation(ctx):
 	""" send a flavor """
-	with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Ressource\\data.json", encoding ="utf8") as json_file:
+	with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:
 		data = json.load(json_file)
 
 	loop = 0
@@ -205,7 +206,7 @@ async def deck(ctx, arg):
 	""" creating the resultat variable dict """
 	deck = {}
 
-	with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\Cardbot for Discord\\Ressource\\data.json", encoding ="utf8") as json_file:
+	with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:
 		ressource = json.load(json_file)
 
 	""" get the heros img for the embed thumbnail """
