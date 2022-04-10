@@ -8,6 +8,7 @@ import yaml
 from PIL import Image
 from dotenv import load_dotenv
 import os
+import urllib.request
 
 load_dotenv(dotenv_path="config")
 
@@ -17,24 +18,25 @@ bot = commands.Bot(command_prefix='!', case_insensitive=True)
 async def on_ready():
 	""" check if bot is connected """
 	print("Le robot est connecté comme {0.user}".format(bot))
+
+	channel_id = int(os.getenv("SALON_BOT_ID"))
+	guild_id = int(os.getenv("SERV_ID"))
 	
 	embed_connexion = discord.Embed(title = "J.A.R.V.I.S", description = "Votre base de donnée Marvel Champions", color = discord.Color.blue())
-	embed_connexion.add_field(name = "Just A Rather Very Intelligent System", value = "Veuillez taper '&helpme' pour plus d'informations")
+	embed_connexion.add_field(name = "Just A Rather Very Intelligent System", value = "Veuillez taper '!helpme' pour plus d'informations")
 
-	""" this message on comment for don't spam the channel with test """
-	await bot.get_guild(865522776876908546).get_channel(882711486844256256).send(embed=embed_connexion)
-
+	await bot.get_guild(guild_id).get_channel(channel_id).send(embed=embed_connexion)
 
 @bot.command(name="helpme")
 async def helpme(ctx):
 	""" send all the bot commands """
 	embed_help = discord.Embed(title = "Liste des commandes", description = "Voici la liste des commandes disponibles pour J.A.R.V.I.S", color = discord.Color.blue())
-	embed_help.add_field(name = "Bienvenue sur l'aide", value = "Toutes les commandes commencent par le préfixe '&'.", inline = False)
-	embed_help.add_field(name = "Definition", value = "Obtenir la définition d'un mot clé (anglais uniquement pour le moment). Commande : &Definition mot_clé ; La commande '&definition liste' affiche la liste des mots clés disponibles.")
-	embed_help.add_field(name = "Randomizer", value = "Afficher le lien du randomizer de notre ami Halion. Commande : &Randomizer ")
-	embed_help.add_field(name = "Citation", value = "Obtenir une citation aléatoire d'une carte du jeu. Commande : &Citation ")
-	embed_help.add_field(name = "Carte", value = "Obtenir l'image de la carte recherchée en français. La recherche peut se faire avec le nom FR ou EN. Commande : &Carte nom_de_la_carte ")
-	embed_help.add_field(name = "Deck", value = "Obtenir la liste des cartes d'un deck !public! de marvelcdb. Commande : &Deck numero_id ")
+	embed_help.add_field(name = "Bienvenue sur l'aide", value = "Toutes les commandes commencent par le préfixe '!'.", inline = False)
+	embed_help.add_field(name = "Definition", value = "Obtenir la définition d'un mot clé (anglais uniquement pour le moment). Commande : !Definition mot_clé ; La commande '&definition liste' affiche la liste des mots clés disponibles.")
+	embed_help.add_field(name = "Randomizer", value = "Afficher le lien du randomizer de notre ami Halion. Commande : !Randomizer ")
+	embed_help.add_field(name = "Citation", value = "Obtenir une citation aléatoire d'une carte du jeu. Commande : !Citation ")
+	embed_help.add_field(name = "Carte", value = "Obtenir l'image de la carte recherchée en français. La recherche peut se faire avec le nom FR ou EN. Commande : !Carte nom_de_la_carte ")
+	embed_help.add_field(name = "Deck", value = "Obtenir la liste des cartes d'un deck !public! de marvelcdb. Commande : !Deck numero_id ")
 	embed_help.add_field(name = "Contact", value = "Vous pouvez MP D3spina#8586 pour toutes questions", inline = False)
 	
 	await ctx.send(embed=embed_help)
@@ -86,7 +88,7 @@ async def carte(ctx, *arg):
 	resultat_Null = 0
 	identite = 0
 	img = []
-	url_image = "C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Images\\"
+	url_image = os.getenv("IMAGE_LINK")
 	place = 0
 	img_weight = 0
 
@@ -99,64 +101,72 @@ async def carte(ctx, *arg):
 		await ctx.send(embed=embed_no_carte)
 
 	else:
-
 		""" opening data.json with all references """
-		with urllib.request.urlopen("https://fr.marvelcdb.com/api/public/cards/") as json_file:
-		"""with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:"""
-			data = json.load(json_file)
+		requete = requests.get("https://fr.marvelcdb.com/api/public/cards/")
+		
+		""" check if we have a response """
+		if requete.status_code == 200:
+			data = requete.json()
 
-		"""" put octgn_id in the resultat_carte list """
-		for i in data:
-			""" search french and english name """
-			if i['name'] == recherche or i['real_name'] == recherche:
-				""" check if we have an octgn_id for the card  """
-				if "octgn_id" in i:
-					""" check if the id is already on the list """
-					if i['octgn_id'] not in resultat_carte:
-						resultat_carte.append(i['octgn_id'])
-						resultat_Null = 1
-				if i['type_code'] == "hero":
-					identite = 1
-					img_weight = 1
+			"""with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:
+				data = json.load(json_file)"""
 
-		if len(resultat_carte) == 0:
-			embed_no_carte = discord.Embed(name = "no result", color = discord.Color.blue())
-			embed_no_carte.add_field(name = "Erreur", value = "Aucune carte n'a été trouvée")
+			"""" put octgn_id in the resultat_carte list """
+			for i in data:
+				""" search french and english name """
+				if i['name'] == recherche or i['real_name'] == recherche:
+					""" check if we have an octgn_id for the card  """
+					if "octgn_id" in i:
+						""" check if the id is already on the list """
+						if i['octgn_id'] not in resultat_carte:
+							resultat_carte.append(i['octgn_id'])
+							resultat_Null = 1
+					if i['type_code'] == "hero":
+						identite = 1
+						img_weight = 1
 
-			await ctx.send(embed = embed_no_carte)
+			if len(resultat_carte) == 0:
+				embed_no_carte = discord.Embed(name = "no result", color = discord.Color.red())
+				embed_no_carte.add_field(name = "Erreur", value = "Aucune carte n'a été trouvée")
 
+				await ctx.send(embed = embed_no_carte)
+
+			else:
+
+				""" define the size of the result with the number of card found """
+				img_weight = (img_weight + len(resultat_carte)) * 394
+				img_height = 560
+
+				""" add every patch in the list img """
+				for i in resultat_carte:
+					img.append(url_image + i + ".jpg")
+					""" add the AE image in the list """
+					if identite == 1:
+						img.append(url_image + i + ".b.jpg")
+
+				""" creating the new img who will be send """
+				new_img = Image.new('RGB', (img_weight, img_height), (250,250,250))
+
+				""" we paste every image in the new_img """
+				for i in img:
+					image = Image.open(i)
+					largeur = 0+(place*394)
+					new_img.paste(image, (largeur, 0))
+					place += 1
+
+				""" saving the result in a png """
+				new_img.save("requête.png", "PNG")
+
+				""" beautiful embed """
+				embed_carte = discord.Embed(name = recherche, color = discord.Color.blue())
+				file = discord.File("requête.png", filename = "image.png")
+				embed_carte.set_image(url ="attachment://image.png")
+
+				await ctx.send(file=file,embed=embed_carte)
 		else:
-
-			""" define the size of the result with the number of card found """
-			img_weight = (img_weight + len(resultat_carte)) * 394
-			img_height = 560
-
-			""" add every patch in the list img """
-			for i in resultat_carte:
-				img.append(url_image + i + ".jpg")
-				""" add the AE image in the list """
-				if identite == 1:
-					img.append(url_image + i + ".b.jpg")
-
-			""" creating the new img who will be send """
-			new_img = Image.new('RGB', (img_weight, img_height), (250,250,250))
-
-			""" we paste every image in the new_img """
-			for i in img:
-				image = Image.open(i)
-				largeur = 0+(place*394)
-				new_img.paste(image, (largeur, 0))
-				place += 1
-
-			""" saving the result in a png """
-			new_img.save("requête.png", "PNG")
-
-			""" beautiful embed """
-			embed_carte = discord.Embed(name = recherche, color = discord.Color.blue())
-			file = discord.File("requête.png", filename = "image.png")
-			embed_carte.set_image(url ="attachment://image.png")
-
-			await ctx.send(file=file,embed=embed_carte)
+			embed_no_result = discord.Embed(name = "no result", color = discord.Color.red())
+			embed_no_result.add_field(name = "Erreur", value = "Erreur dans la base de donnée. Contacter l'admin serveur")
+			await ctx.send(embed=embed_no_result)
 
 @bot.command(name="citation")
 async def citation(ctx):
@@ -182,8 +192,8 @@ async def deck(ctx, arg):
 	id_deck = arg
 
 	""" get the json from marvelcdb api """
-	data = requests.get("https://fr.marvelcdb.com/api/public/decklist/" + id_deck)
-	data = data.json()
+	requete = requests.get("https://fr.marvelcdb.com/api/public/decklist/" + id_deck)
+	data = requete.json()
 
 	thumbnail_url_code = None
 
