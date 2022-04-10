@@ -13,6 +13,10 @@ A Discord bot for Marvel Champions.
 
 Download all octgn image and put them in Images folder.
 Edit config file
+  - Add your Bot Token
+  - Add your serv ID
+  - Add your welcome room bot ID
+  - Add your location of OCTGN Image storage
 Push the script in the bot
 
 ### Installation
@@ -42,7 +46,7 @@ If you want to contribute. Use github tool
 ## Versions
 
 For now :
- stable: first release
+ stable: second release
 
 ## Auteurs
 
