@@ -101,7 +101,8 @@ async def carte(ctx, *arg):
 	else:
 
 		""" opening data.json with all references """
-		with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:
+		with urllib.request.urlopen("https://fr.marvelcdb.com/api/public/cards/") as json_file:
+		"""with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:"""
 			data = json.load(json_file)
 
 		"""" put octgn_id in the resultat_carte list """
