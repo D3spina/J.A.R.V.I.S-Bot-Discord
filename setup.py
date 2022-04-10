@@ -8,6 +8,7 @@ import yaml
 from PIL import Image
 from dotenv import load_dotenv
 import os
+import urllib.requests
 
 load_dotenv(dotenv_path="config")
 
@@ -23,7 +24,6 @@ async def on_ready():
 
 	""" this message on comment for don't spam the channel with test """
 	await bot.get_guild(865522776876908546).get_channel(882711486844256256).send(embed=embed_connexion)
-
 
 @bot.command(name="helpme")
 async def helpme(ctx):
@@ -101,7 +101,8 @@ async def carte(ctx, *arg):
 	else:
 
 		""" opening data.json with all references """
-		with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:
+		with urllib.request.urlopen("https://fr.marvelcdb.com/api/public/cards/") as json_file:
+		"""with open("C:\\Users\\meelo\\Documents\\Dev\\Python\\J.A.R.V.I.S\\Ressource\\data.json", encoding ="utf8") as json_file:"""
 			data = json.load(json_file)
 
 		"""" put octgn_id in the resultat_carte list """
