@@ -11,21 +11,22 @@ A Discord bot for Marvel Champions.
 
 ## To start
 
+Download script and file (Images not provided) and add them to your bot
+
+### Installation
+
 Download all octgn image and put them in Images folder.
 Edit config file
   - Add your Bot Token
   - Add your serv ID
   - Add your welcome room bot ID
   - Add your location of OCTGN Image storage
-Push the script in the bot
-
-### Installation
-
-Download script and file (Images not provided) and add them to your bot
 
 ### Run
 
-on the CMD : python script.py
+on the CMD : python index.py
+or
+run start.bat
 
 ## Build with
 
